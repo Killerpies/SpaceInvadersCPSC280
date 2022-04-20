@@ -1,4 +1,6 @@
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
 
 /**
  * Write a one-sentence summary of your class here. Follow it with additional
@@ -10,9 +12,12 @@ import java.awt.Graphics2D;
 public class PhotonTorpedo
     extends Drawable {
 
-    protected PhotonTorpedo(int x, int y) {
+    private Image image;
+
+    public PhotonTorpedo(int x, int y) {
         super(x, y);
-        // TODO Auto-generated constructor stub
+        image = getImage("photon.png");
+
     }
 
 
@@ -21,8 +26,19 @@ public class PhotonTorpedo
      */
     @Override
     public void draw(Graphics2D g2) {
-        // TODO Auto-generated method stub
+        var x = getX();
+        var y = getY();
 
+        g2.drawImage(image, x, y, 50,50, null);
+
+    }
+    
+    public Rectangle getDimensions() {
+        var x = getX();
+        var y = getY();
+        var w = image.getWidth(null);
+        var h = image.getHeight(null);
+        return new Rectangle( x, y, 50, 50);
     }
 
 }
