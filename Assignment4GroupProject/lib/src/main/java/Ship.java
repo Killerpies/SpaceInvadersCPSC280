@@ -14,7 +14,7 @@ import javax.sound.sampled.Clip;
  */
 public abstract class Ship
     extends Drawable {
-//    private boolean hit;
+    private boolean hit;
     private Image image;
     private Clip  hitSound;
     private Rectangle shape;
@@ -48,6 +48,10 @@ public abstract class Ship
     public abstract PhotonTorpedo shooting(); 
     
     
+    
+    public boolean getHit() {
+        return hit;
+    }
     public void changeImage(String imagename) {
         image = getImage(imagename);
     }
@@ -57,7 +61,7 @@ public abstract class Ship
             System.out.println("Hit");
             hitSound.setFramePosition(0);
             hitSound.start();
-//            hit = true;
+            hit = true;
             return true;
         }
         return false;
