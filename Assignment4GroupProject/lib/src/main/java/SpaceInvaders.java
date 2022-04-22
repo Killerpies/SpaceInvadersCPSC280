@@ -60,7 +60,7 @@ public class SpaceInvaders
                     Random spawn = new Random();
                     
                     if (spawn.nextInt(500)==1 && i<10) {
-                        PhotonTorpedo enemytorpedo = new PhotonTorpedo(inv.get(i).getX(),inv.get(i).getX());
+                        PhotonTorpedo enemytorpedo = new PhotonTorpedo(inv.get(i).getX(),inv.get(i).getY());
                         enemytorpedo = xwing.shooting();
                     }
                     
