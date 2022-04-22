@@ -33,6 +33,7 @@ public abstract class Invader
         
     }
     public int getPoint() {
+//        changeImage("img_invaderhit.gif");
         return point;
         
     }

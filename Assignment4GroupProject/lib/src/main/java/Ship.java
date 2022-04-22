@@ -27,7 +27,7 @@ public abstract class Ship
     public Ship(int x, int y) {
         super(x, y);
 //        hit = false;
-        shape = new Rectangle( x , y , 50, 50);
+        shape = new Rectangle( x , y , 30, 30);
         hitSound = getSound("aud_hit.wav");
         // TODO Auto-generated constructor stub
     }
@@ -47,7 +47,9 @@ public abstract class Ship
      */
     public abstract PhotonTorpedo shooting(); 
     
-    
+    public void setHit(boolean t) {
+        hit = t;
+    }
     
     public boolean getHit() {
         return hit;
@@ -61,7 +63,7 @@ public abstract class Ship
             System.out.println("Hit");
             hitSound.setFramePosition(0);
             hitSound.start();
-            hit = true;
+//            hit = true;
             return true;
         }
         return false;

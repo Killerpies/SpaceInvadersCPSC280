@@ -1,5 +1,6 @@
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.Random;
 import javax.sound.sampled.Clip;
 
 
@@ -18,7 +19,7 @@ public class Mystery
 
     private Image image;
     private Clip  sound;
-    private int point = 20;
+    private int point;
 
     /**
      * Create a new BottomA object.
@@ -31,8 +32,27 @@ public class Mystery
         image = getImage("img_mystery.gif");
         sound = getSound("aud_mystery.wav");
         
+        Random spawn = new Random();
+        int temp = spawn.nextInt(4);
+        if (temp==0) {
+            point = 50;
+        }
+        else if (temp==1) {
+            point = 100;
+        }
+        else if (temp==2) {
+            point = 150;
+        }
+        else {
+            point = 300;
+        }
+        
     }
 
+    public void playSound() {
+//        sound.setFramePosition(0);
+        sound.start();
+    }
 
 
     /**

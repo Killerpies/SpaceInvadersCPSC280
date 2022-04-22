@@ -16,7 +16,7 @@ public class InvaderTop
 
     private Image image;
     private Clip  sound;
-    private int point = 20;
+    private int point = 30;
 
     /**
      * Create a new BottomA object.

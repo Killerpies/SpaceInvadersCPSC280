@@ -38,7 +38,7 @@ public class PhotonTorpedo
         var y = getY();
         var w = image.getWidth(null);
         var h = image.getHeight(null);
-        return new Rectangle( x, y, 50, 50);
+        return new Rectangle( x, y, 1, 1);
     }
 
 }
