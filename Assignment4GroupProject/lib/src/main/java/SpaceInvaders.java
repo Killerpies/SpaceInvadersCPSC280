@@ -59,12 +59,11 @@ public class SpaceInvaders
                     reset();
                     test = false;
                 }
-                //TODO Change font of score/lives
-                //TODO Drop ships a couple of pixes to the mystery doesnt fly through them
-                //TODO Fix Colision
-                //TODO Fix enemy missile removing like 20hp per hit
-                
-                
+                // TODO Change font of score/lives
+                // TODO Drop ships a couple of pixes to the mystery doesnt fly
+                // through them
+                // TODO Fix Colision
+                // TODO Fix enemy missile removing like 20hp per hit
 
                 // Invader Movement
                 pulseCount += 1;
@@ -88,7 +87,7 @@ public class SpaceInvaders
                     // move enemyTorpedo
                     moveEnemyTorpedo();
                     enemyMissileSpeed = 0;
-                    
+
                     if (mShip != null) {
                         mShip.moveHorizontaly(5);
                     }
@@ -259,7 +258,7 @@ public class SpaceInvaders
                     xwing.setHit(true);
                     enemyTorpeIndex = i;
                     enemyTorpe = true;
-//                    enemyTorpedo.remove(i);
+// enemyTorpedo.remove(i);
                 }
             }
 
@@ -278,19 +277,21 @@ public class SpaceInvaders
                         }
 
                     }
-                    if (enemyTorpe == true) {
-                        enemyTorpedo.remove(enemyTorpeIndex);
-                    }
 
-                    if (torpe == true) {
-                        torpedo = null;
-                    }
+
+
 
                     if (mShip != null
                         && mShip.colission(torpedo.getDimensions())) {
                         score += mShip.getPoint();
                         mShip.setHit(true);
                         torpe = true;
+                    }
+                    if (torpe == true) {
+                        torpedo = null;
+                    }
+                    if (enemyTorpe == true) {
+                        enemyTorpedo.remove(enemyTorpeIndex);
                     }
                 }
 
@@ -307,9 +308,9 @@ public class SpaceInvaders
                 }
 
             }
-            if (mShip != null && mShip.getHit() == true) {
-                mShip = null;
-            }
+//            if (mShip != null && mShip.getHit() == true) {
+//                mShip = null;
+//            }
 
         }
 
@@ -431,16 +432,14 @@ public class SpaceInvaders
                 torpedo.draw(g2);
             }
             for (var i : inv) {
-                if (i != null) {
-                    i.draw(g2);
-                }
+
+                i.draw(g2);
 
             }
 
             for (var i : enemyTorpedo) {
-                if (i != null) {
-                    i.draw(g2);
-                }
+
+                i.draw(g2);
 
             }
 
