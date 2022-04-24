@@ -1,6 +1,8 @@
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Write a one-sentence summary of your class here. Follow it with additional
@@ -12,7 +14,8 @@ import java.awt.Rectangle;
 public class PhotonTorpedo
     extends Drawable {
 
-    private Image image;
+    private Image       image;
+    private Rectangle2D shape;
 
     public PhotonTorpedo(int x, int y) {
         super(x, y);
@@ -29,16 +32,15 @@ public class PhotonTorpedo
         var x = getX();
         var y = getY();
 
-        g2.drawImage(image, x, y, 50,50, null);
+        g2.drawImage(image, x, y, 2, 10, null);
 
     }
-    
-    public Rectangle getDimensions() {
+
+
+    public Rectangle2D getDimensions() {
         var x = getX();
         var y = getY();
-        var w = image.getWidth(null);
-        var h = image.getHeight(null);
-        return new Rectangle( x, y, 1, 1);
+        return new Rectangle2D.Double(x, y, 2, 10);
     }
 
 }

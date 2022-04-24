@@ -1,6 +1,7 @@
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import javax.sound.sampled.Clip;
 
 
@@ -17,7 +18,7 @@ public abstract class Ship
     private boolean hit;
     private Image image;
     private Clip  hitSound;
-    private Rectangle shape;
+    private Rectangle2D shape;
 
     /**
      * Create a new Ship object.
@@ -27,7 +28,7 @@ public abstract class Ship
     public Ship(int x, int y) {
         super(x, y);
 //        hit = false;
-        shape = new Rectangle( x , y , 30, 30);
+        shape = new Rectangle2D.Double( x , y , 30, 30);
         hitSound = getSound("aud_hit.wav");
         // TODO Auto-generated constructor stub
     }
@@ -58,12 +59,13 @@ public abstract class Ship
         image = getImage(imagename);
     }
     
-    public boolean colission(Rectangle object) {
-        if (shape.intersects(object) ) {
-            System.out.println("Hit");
+    public boolean colission(Rectangle2D rectangle2d) {
+        if (shape.intersects(rectangle2d) ) {
+//            System.out.println("Hit");
             hitSound.setFramePosition(0);
             hitSound.start();
-//            hit = true;
+//            image = getImage("img_invaderhit.gif");
+            hit = true;
             return true;
         }
         return false;

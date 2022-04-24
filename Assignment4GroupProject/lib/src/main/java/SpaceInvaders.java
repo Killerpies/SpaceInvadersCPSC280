@@ -20,85 +20,95 @@ import java.util.Random;
 public class SpaceInvaders
     extends JFrame {
 
-    private Timer timer;
+    private Timer   timer;
     private boolean test = false;
 
     class KeyboardPanel
         extends JPanel {
 
-        private int           score      = 0;
-        private Base          xwing;
-        private Mystery mShip;
+        private int                 score             = 0;
+        private int                 livesLeft         = 1;
+        private Base                xwing;
+        private Mystery             mShip;
 
-        private List<Invader> inv        = new ArrayList<>();
-        private PhotonTorpedo torpedo    = null;
-// private boolean up;
-// private boolean down;
-        private boolean       left;
-        private boolean       right;
-        private boolean       switchside = true;
-        private boolean       moveDown   = false;
+        private List<Invader>       inv               = new ArrayList<>();
+        private List<PhotonTorpedo> enemyTorpedo      = new ArrayList<>();
+        private PhotonTorpedo       torpedo           = null;
+        private boolean             left;
+        private boolean             right;
+        private boolean             goRight           = true;
+        private boolean             finalWaveStart    = false;
+
+        private double              invaderPulse      = 40; // when the invader
+                                                            // will
+                                                            // move
+        private double              pulseCount        = 0; // checkint to see if
+                                                           // its
+                                                           // time to move
+        private double              enemyMissileSpeed = 0;
+        private int                 lastX             = 500;
+        private int                 lastY             = 500;
+        String                      endGameMessage    = "";
 
         public KeyboardPanel() {
             setBackground(Color.BLACK);
             reset();
-            timer = new Timer(20, e -> {
+// testSpawn();
+            timer = new Timer(10, e -> {
                 if (test) {
                     reset();
                     test = false;
                 }
-                getMystery();
-                if (mShip != null) {
-                    mShip.moveHorizontaly(2);
-                    mShip.playSound();
-                    if (mShip.getX() > 500) {
-                        mShip = null;
-                    }
-                }
-
-                for (int i = 0; i < inv.size(); i++) {
-                    Random spawn = new Random();
-                    
-                    if (spawn.nextInt(500)==1 && i<10) {
-                        PhotonTorpedo enemytorpedo = new PhotonTorpedo(inv.get(i).getX(),inv.get(i).getY());
-                        enemytorpedo = xwing.shooting();
-                    }
-                    
-                    if (moveDown) {
-                        inv.get(i).moveVerticaly(10);
-                    }
-                }
-                if (moveDown) {
-                    
-                }
-                moveDown = false;
-                for (int i = 0; i < inv.size(); i++) {
-                    if (switchside) {
-                        inv.get(i).moveHorizontaly(1);
-                        switchside = inv.get(i).getX() < 450;
-
-                    }
-                    else {
-                        inv.get(i).moveHorizontaly(-1);
-                        switchside = inv.get(i).getX() < 0;
-                        if (switchside) {
-                            moveDown = true;
-                        }
-                        else {
-                            moveDown = false;
-                        }
-                    }
-                }
-                checkHit();
+                //TODO Change font of score/lives
+                //TODO Drop ships a couple of pixes to the mystery doesnt fly through them
+                //TODO Fix Colision
+                //TODO Fix enemy missile removing like 20hp per hit
                 
-// if (up)
-// xwing.moveVerticaly(-10);
-// if (down)
-// xwing.moveVerticaly(10);
+                
+
+                // Invader Movement
+                pulseCount += 1;
+                if (pulseCount > invaderPulse) {
+                    // reset pulseCount
+                    pulseCount = 0;
+                    // move invader
+                    moveInvaderX();
+                    // check if inBounds, change direction if not
+                    goRight = rightOrLeft(goRight);
+                    // Enemy Fire
+                    enemyShoot();
+                    // detect if enemy hit bottom of map 370y
+                    enemyBounds();
+                }
+                // Mystery Ship Spawn
+                getMystery();
+                // Enemy Missiles and mystery Ship
+                enemyMissileSpeed++;
+                if (enemyMissileSpeed == 2) {
+                    // move enemyTorpedo
+                    moveEnemyTorpedo();
+                    enemyMissileSpeed = 0;
+                    
+                    if (mShip != null) {
+                        mShip.moveHorizontaly(5);
+                    }
+                }
+                // check if enemyTorpedo left bounds
+                enemyTorpedoBounds();
+                // End Game or spawn 10 more
+                finalWave();
+                // Check if enemy was hit
+                checkEnemyHit();
+                // remove hit ship
+                removeHitShip();
+
+                // count if base got hit
+                baseHitCount();
+
                 if (left && xwing.getX() > 0)
-                    xwing.moveHorizontaly(-10);
+                    xwing.moveHorizontaly(-5);
                 if (right && xwing.getX() < 455)
-                    xwing.moveHorizontaly(10);
+                    xwing.moveHorizontaly(5);
                 repaint();
             });
             // timer.start();
@@ -112,6 +122,7 @@ public class SpaceInvaders
                     int result = JOptionPane
                         .showConfirmDialog(SpaceInvaders.this, "Close?");
                     if (result == JOptionPane.YES_OPTION) {
+                        timer.stop();
                         dispose();
                     }
                 }
@@ -158,21 +169,102 @@ public class SpaceInvaders
             });
 
         }
+
+
         public void getMystery() {
             Random spawn = new Random();
-            
-            if (spawn.nextInt(500)==1 && mShip == null) {
-                mShip = new Mystery(0,35); 
+
+            if (spawn.nextInt(500) == 1 && mShip == null) {
+                mShip = new Mystery(0, 35);
             }
 
-                      
-            
         }
-        
-        
-        public void checkHit() {
+
+
+        public void finalWave() {
+
+            // keep track of last y and x
+            if (inv.size() > 0) {
+
+                for (int i = 0; i < inv.size(); i++) {
+                    if (inv.get(i).getY() < lastY) {
+                        lastY = inv.get(i).getY();
+                        lastX = inv.get(i).getX();
+                    }
+
+                }
+
+            }
+
+            // if the first 50 died and the finalwave has not been activated
+            // spawn 10 more where the previous ones died
+            if (inv.size() <= 0 && finalWaveStart == false
+                && enemyTorpedo.size() <= 0) {
+                finalWaveStart = true;
+
+                for (int i = 0; i < 10; i++) {
+                    Invader temp = new InvaderTop(lastX, lastY, 'b');
+                    inv.add(temp);
+                    lastX += 30;
+                }
+
+            }
+
+            if (inv.size() < 1 && finalWaveStart == true) {
+                endGameMessage = "Game Over";
+                timer.stop();
+            }
+        }
+
+
+        public void enemyBounds() {
+            for (int i = 0; i < inv.size(); i++) {
+                // if enemy reaches your ship game ends
+                if (inv.get(i).getY() > 350) {
+                    xwing.dead();
+                    endGameMessage = "Game Over";
+                    timer.stop();
+
+                }
+            }
+
+        }
+
+
+        public void enemyTorpedoBounds() {
+            for (int i = 0; i < enemyTorpedo.size(); i++) {
+                if (enemyTorpedo.get(i).getY() > 500) {
+                    enemyTorpedo.remove(i);
+                }
+            }
+        }
+
+
+        public void baseHitCount() {
+            if (xwing.getHit() == true) {
+                livesLeft--;
+                xwing.setHit(false);
+            }
+            if (livesLeft == 0) {
+                xwing.dead();
+            }
+        }
+
+
+        public void checkEnemyHit() {
+            boolean enemyTorpe = false;
+            int enemyTorpeIndex = 0;
+            for (int i = 0; i < enemyTorpedo.size(); i++) {
+                if (xwing.colission(enemyTorpedo.get(i).getDimensions())) {
+                    xwing.setHit(true);
+                    enemyTorpeIndex = i;
+                    enemyTorpe = true;
+//                    enemyTorpedo.remove(i);
+                }
+            }
+
             if (torpedo != null) {
-                torpedo.moveVerticaly(-10);
+                torpedo.moveVerticaly(-5);
                 if (torpedo.getY() < 0) {
                     torpedo = null;
                 }
@@ -182,30 +274,132 @@ public class SpaceInvaders
                         if (inv.get(i).colission(torpedo.getDimensions())) {
                             score += inv.get(i).getPoint();
                             inv.get(i).setHit(true);
-                            inv.get(i).changeImage("img_invaderhit.gif");
                             torpe = true;
-
-                        }
-                        if (inv.get(i).getHit() == true) {
-                            inv.remove(i);
-
                         }
 
                     }
-                    if (mShip!= null && mShip.colission(torpedo.getDimensions())){
-                        score += mShip.getPoint();
-                        mShip.setHit(true);
-                        torpe = true;
+                    if (enemyTorpe == true) {
+                        enemyTorpedo.remove(enemyTorpeIndex);
                     }
-                    
+
                     if (torpe == true) {
                         torpedo = null;
                     }
 
+                    if (mShip != null
+                        && mShip.colission(torpedo.getDimensions())) {
+                        score += mShip.getPoint();
+                        mShip.setHit(true);
+                        torpe = true;
+                    }
                 }
 
             }
-            
+
+        }
+
+
+        public void removeHitShip() {
+
+            for (int i = 0; i < inv.size(); i++) {
+                if (inv.get(i).getHit() == true) {
+                    inv.remove(i);
+                }
+
+            }
+            if (mShip != null && mShip.getHit() == true) {
+                mShip = null;
+            }
+
+        }
+
+
+        public void enemyShoot() {
+            int maxy = 0;
+            int x = 0;
+            // find bottom row y
+            for (int i = 0; i < inv.size(); i++) {
+                // get bottom row
+                if (inv.get(i).getY() > maxy) {
+                    // get bottom row y
+                    maxy = inv.get(i).getY();
+
+                }
+
+            }
+            // find bottom row x
+            for (int i = 0; i < inv.size(); i++) {
+                if (inv.get(i).getY() == maxy) {
+                    int rnd = new Random().nextInt(inv.size());
+                    x = inv.get(rnd).getX();
+                }
+
+            }
+
+            Random spawn = new Random();
+
+            if (spawn.nextInt(4) == 1) {
+                if (enemyTorpedo.size() < 3) {
+                    PhotonTorpedo tempTorpedo = new PhotonTorpedo(x, maxy);
+                    enemyTorpedo.add(tempTorpedo);
+                }
+            }
+
+        }
+
+
+        public void moveEnemyTorpedo() {
+            for (int i = 0; i < enemyTorpedo.size(); i++) {
+                enemyTorpedo.get(i).moveVerticaly(5);
+            }
+        }
+
+
+        public boolean rightOrLeft(boolean check) {
+            for (int i = 0; i < inv.size(); i++) {
+                if (inv.get(i).getX() > 450) {
+                    check = false;
+                    moveInvaderY();
+                    break;
+
+                }
+                else if (inv.get(i).getX() < 5) {
+                    check = true;
+
+                    moveInvaderY();
+                    break;
+
+                }
+
+            }
+            return check;
+
+        }
+
+
+        public void moveInvaderY() {
+            for (int i = 0; i < inv.size(); i++) {
+                inv.get(i).moveVerticaly(12);
+
+            }
+            invaderPulse = invaderPulse * .80;
+
+        }
+
+
+        public void moveInvaderX() {
+            if (goRight) {
+                // if goRight then move right
+                for (int i = 0; i < inv.size(); i++) {
+                    inv.get(i).moveHorizontaly(5);
+                }
+            }
+            else {
+                for (int i = 0; i < inv.size(); i++) {
+                    inv.get(i).moveHorizontaly(-5);
+                }
+            }
+
         }
 
 
@@ -215,22 +409,24 @@ public class SpaceInvaders
             Graphics2D g2 = (Graphics2D)g;
 
             var message = "Score: " + score;
-            var font = new Font("Helvetica", Font.BOLD, 30);
+            var livesLeftMsg = "Lives: " + livesLeft;
+            var font = new Font("Helvetica", Font.BOLD, 25);
             var fm = g2.getFontMetrics(font);
 
             int x = getWidth() - fm.stringWidth(message);
-            int y = 35;
+            int y = 25;
 
             g2.setFont(font);
-            g2.setColor(Color.red);
+            g2.setColor(Color.GREEN);
             g2.drawString(message, x, y);
+            g2.drawString(livesLeftMsg, 0, y);
 
             xwing.draw(g2);
-            
+
             if (mShip != null) {
                 mShip.draw(g2);
             }
-            
+
             if (torpedo != null) {
                 torpedo.draw(g2);
             }
@@ -241,10 +437,27 @@ public class SpaceInvaders
 
             }
 
+            for (var i : enemyTorpedo) {
+                if (i != null) {
+                    i.draw(g2);
+                }
+
+            }
+
+            if (endGameMessage != "") {
+                var fontEnd = new Font("Helvetica", Font.BOLD, 45);
+                var fmEnd = g2.getFontMetrics(fontEnd);
+
+                int xEnd = getWidth() / 2 - fm.stringWidth(message) / 2;
+                int yEnd = getHeight() / 2;
+                g2.drawString(endGameMessage, xEnd, yEnd);
+
+            }
+
         }
 
 
-        public void reset() {
+        public void testSpawn() {
             inv.clear();
             score = 0;
             xwing = new Base(250, 350);
@@ -252,7 +465,31 @@ public class SpaceInvaders
             // BOTTOMS
             char letter = 'a';
             int startx = 100;
-            int ypos = 200;
+            int ypos = 160;
+            for (int i = 0; i < 1; i++) {
+                if (i == 10) {
+                    ypos -= 30;
+                    startx = 100;
+                    letter = 'b';
+                }
+                Invader temp = new BottomA(startx, ypos, letter);
+                inv.add(temp);
+                startx += 30;
+            }
+
+        }
+
+
+        public void reset() {
+            inv.clear();
+            score = 0;
+            xwing = new Base(250, 370);
+            endGameMessage = "";
+
+            // BOTTOMS
+            char letter = 'a';
+            int startx = 100;
+            int ypos = 160;
             for (int i = 0; i < 20; i++) {
                 if (i == 10) {
                     ypos -= 30;
@@ -281,7 +518,7 @@ public class SpaceInvaders
             letter = 'a';
             startx = 100;
             ypos -= 30;
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 10; i++) {
                 if (i == 10) {
                     ypos -= 30;
                     startx = 100;
@@ -342,8 +579,8 @@ public class SpaceInvaders
                 resume.setEnabled(false);
                 pause.setEnabled(true);
                 timer.start();
-                test= true;
-                
+                test = true;
+
             }
 
 // SpaceInvaders.reset();
@@ -386,6 +623,7 @@ public class SpaceInvaders
         int response = JOptionPane
             .showConfirmDialog(SpaceInvaders.this, "Do you want to quit");
         if (response == JOptionPane.YES_OPTION) {
+            timer.stop();
             dispose();
         }
     }

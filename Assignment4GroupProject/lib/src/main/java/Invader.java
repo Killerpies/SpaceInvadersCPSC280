@@ -33,9 +33,17 @@ public abstract class Invader
         
     }
     public int getPoint() {
-//        changeImage("img_invaderhit.gif");
         return point;
         
+    }
+    
+    public PhotonTorpedo shooting() {
+//        fireSound.setFramePosition(0);
+//        fireSound.start();
+        
+        var x = getX();
+        var y = getY();
+        return new PhotonTorpedo(x, y+50);
     }
 
 }

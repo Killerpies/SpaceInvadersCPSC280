@@ -49,5 +49,9 @@ public class Base
         var y = getY();
         return new PhotonTorpedo(x, y-50);
     }
+    
+    public void dead() {
+        image = getImage("img_basehit.gif");
+    }
 
 }
