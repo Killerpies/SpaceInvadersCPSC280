@@ -38,6 +38,9 @@ public class SpaceInvaders
         private boolean             right;
         private boolean             goRight           = true;
         private boolean             finalWaveStart    = false;
+        private boolean             invincible        = false;
+        private int invincibleTimer = 140;
+        private int invincibleCount = 0;
 
         private double              invaderPulse      = 40; // when the invader
                                                             // will
@@ -59,10 +62,18 @@ public class SpaceInvaders
                     reset();
                     test = false;
                 }
-                // TODO Change font of score/lives
-                // TODO Drop ships a couple of pixes to the mystery doesnt fly
-                // through them
-                // TODO Fix enemy missile removing like 20hp per hit
+                // count if base got hit
+                baseHitCount();
+
+                // TODO Mystery Ship doesn't give points
+                // TODO Invader death animation doesnt play
+                
+                // invincibility timer (To fix enemy's oneshotting you)
+                invincibleCount += 1;
+                if (invincibleCount > invincibleTimer) {
+                    invincible = false;
+                    invincibleCount = 0;
+                }
 
                 // Invader Movement
                 pulseCount += 1;
@@ -99,9 +110,8 @@ public class SpaceInvaders
                 checkEnemyHit();
                 // remove hit ship
                 removeHitShip();
-
-                // count if base got hit
-                baseHitCount();
+                
+                
 
                 if (left && xwing.getX() > 0)
                     xwing.moveHorizontaly(-5);
@@ -172,14 +182,16 @@ public class SpaceInvaders
         public void getMystery() {
             Random spawn = new Random();
 
-            if (spawn.nextInt(500) == 1 && mShip == null) {
-                mShip = new Mystery(0, 35);
+            if (spawn.nextInt(400) == 1 && mShip == null) {
+                mShip = new Mystery(0, 20);
+                mShip.playSound();
             }
 
         }
 
 
         public void finalWave() {
+            lastX = 100;
 
             // keep track of last y and x
             if (inv.size() > 0) {
@@ -187,7 +199,7 @@ public class SpaceInvaders
                 for (int i = 0; i < inv.size(); i++) {
                     if (inv.get(i).getY() < lastY) {
                         lastY = inv.get(i).getY();
-                        lastX = inv.get(i).getX();
+                        
                     }
 
                 }
@@ -209,9 +221,15 @@ public class SpaceInvaders
             }
 
             if (inv.size() < 1 && finalWaveStart == true) {
-                endGameMessage = "Game Over";
-                timer.stop();
+                endGame();
             }
+        }
+
+
+        public void endGame() {
+            endGameMessage = "Game Over";
+            timer.stop();
+
         }
 
 
@@ -239,12 +257,16 @@ public class SpaceInvaders
 
 
         public void baseHitCount() {
-            if (xwing.getHit() == true) {
-                livesLeft--;
+            checkEnemyHit();
+            if (xwing.getHit() == true && invincible == false) {
+                
+                invincible = true;
+                livesLeft -= 1;
                 xwing.setHit(false);
             }
-            if (livesLeft == 0) {
+            if (livesLeft <= 0) {
                 xwing.dead();
+                endGame();
             }
         }
 
@@ -277,9 +299,6 @@ public class SpaceInvaders
 
                     }
 
-
-
-
                     if (mShip != null
                         && mShip.colission(torpedo.getDimensions())) {
                         score += mShip.getPoint();
@@ -307,9 +326,10 @@ public class SpaceInvaders
                 }
 
             }
-//            if (mShip != null && mShip.getHit() == true) {
-//                mShip = null;
-//            }
+            if (mShip != null && mShip.getHit() == true) {
+                score+= mShip.getPoint();
+                mShip = null;
+            }
 
         }
 
@@ -410,11 +430,11 @@ public class SpaceInvaders
 
             var message = "Score: " + score;
             var livesLeftMsg = "Lives: " + livesLeft;
-            var font = new Font("Helvetica", Font.BOLD, 25);
+            var font = new Font("Helvetica", Font.BOLD, 15);
             var fm = g2.getFontMetrics(font);
 
             int x = getWidth() - fm.stringWidth(message);
-            int y = 25;
+            int y = 15;
 
             g2.setFont(font);
             g2.setColor(Color.GREEN);
@@ -430,22 +450,12 @@ public class SpaceInvaders
             if (torpedo != null) {
                 torpedo.draw(g2);
             }
-//            for (var i : inv) {
-//
-//                i.draw(g2);
-//
-//            }
-            
-            for (int i=0; i<inv.size();i++) {
+
+            for (int i = 0; i < inv.size(); i++) {
                 inv.get(i).draw(g2);
             }
 
-//            for (var i : enemyTorpedo) {
-//
-//                i.draw(g2);
-//
-//            }
-            for (int i=0; i<enemyTorpedo.size();i++) {
+            for (int i = 0; i < enemyTorpedo.size(); i++) {
 
                 enemyTorpedo.get(i).draw(g2);
 
@@ -472,7 +482,7 @@ public class SpaceInvaders
             // BOTTOMS
             char letter = 'a';
             int startx = 100;
-            int ypos = 160;
+            int ypos = 180;
             for (int i = 0; i < 1; i++) {
                 if (i == 10) {
                     ypos -= 30;
@@ -489,6 +499,8 @@ public class SpaceInvaders
 
         public void reset() {
             inv.clear();
+            finalWaveStart = false;
+            livesLeft = 1;
             score = 0;
             xwing = new Base(250, 370);
             endGameMessage = "";
