@@ -62,7 +62,6 @@ public class SpaceInvaders
                 // TODO Change font of score/lives
                 // TODO Drop ships a couple of pixes to the mystery doesnt fly
                 // through them
-                // TODO Fix Colision
                 // TODO Fix enemy missile removing like 20hp per hit
 
                 // Invader Movement
