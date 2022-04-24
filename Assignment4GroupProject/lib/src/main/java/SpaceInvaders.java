@@ -431,15 +431,24 @@ public class SpaceInvaders
             if (torpedo != null) {
                 torpedo.draw(g2);
             }
-            for (var i : inv) {
-
-                i.draw(g2);
-
+//            for (var i : inv) {
+//
+//                i.draw(g2);
+//
+//            }
+            
+            for (int i=0; i<inv.size();i++) {
+                inv.get(i).draw(g2);
             }
 
-            for (var i : enemyTorpedo) {
+//            for (var i : enemyTorpedo) {
+//
+//                i.draw(g2);
+//
+//            }
+            for (int i=0; i<enemyTorpedo.size();i++) {
 
-                i.draw(g2);
+                enemyTorpedo.get(i).draw(g2);
 
             }
 

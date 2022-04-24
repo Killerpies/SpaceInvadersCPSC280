@@ -60,7 +60,10 @@ public abstract class Ship
     }
     
     public boolean colission(Rectangle2D rectangle2d) {
-        if (shape.intersects(rectangle2d) ) {
+        var x = getX();
+        var y = getY();
+        Rectangle2D tempShape = new Rectangle2D.Double( x , y , 30, 30);
+        if (tempShape.intersects(rectangle2d) ) {
 //            System.out.println("Hit");
             hitSound.setFramePosition(0);
             hitSound.start();
