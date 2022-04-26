@@ -36,6 +36,7 @@ public abstract class Invader
         return point;
         
     }
+
     
     public PhotonTorpedo shooting() {
 //        fireSound.setFramePosition(0);

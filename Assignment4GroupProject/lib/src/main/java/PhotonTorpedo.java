@@ -19,7 +19,7 @@ public class PhotonTorpedo
 
     public PhotonTorpedo(int x, int y) {
         super(x, y);
-        image = getImage("photon.png");
+        image = getImage("missilecolor.png");
 
     }
 

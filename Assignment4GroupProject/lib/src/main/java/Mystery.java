@@ -26,26 +26,14 @@ public class Mystery
      * @param x
      * @param y
      */
-    public Mystery(int x, int y) {
+    public Mystery(int x, int y, int point) {
         super(x, y);
         this.setPoint(point);
         image = getImage("img_mystery.gif");
         sound = getSound("aud_mystery.wav");
+        this.point = point;
         
-        Random spawn = new Random();
-        int temp = spawn.nextInt(4);
-        if (temp==0) {
-            point = 50;
-        }
-        else if (temp==1) {
-            point = 100;
-        }
-        else if (temp==2) {
-            point = 150;
-        }
-        else {
-            point = 300;
-        }
+
         
     }
 

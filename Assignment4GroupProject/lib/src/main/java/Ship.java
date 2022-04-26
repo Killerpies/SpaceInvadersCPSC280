@@ -55,9 +55,7 @@ public abstract class Ship
     public boolean getHit() {
         return hit;
     }
-    public void changeImage(String imagename) {
-        image = getImage(imagename);
-    }
+
     
     public boolean colission(Rectangle2D rectangle2d) {
         var x = getX();
